@@ -5,6 +5,7 @@ class losses():
     def __init__(self,img_true,img_pred):
         self.y_true = img_true
         self.y_pred = img_pred
+        self.perceptual_models = self.init_vgg16_model()
     def init_vgg16_model(self):
         """
         Initialize a pre-trained VGG16 model for feature extraction.
@@ -37,7 +38,6 @@ class losses():
         return perceptual_model_conv1, perceptual_model_conv2, perceptual_model_conv3
 
     # Initialize VGG16 model for feature extraction
-    perceptual_models = init_vgg16_model()
 
 
     def perceptual_loss(self):
@@ -58,7 +58,7 @@ class losses():
 
         """
         # Extract perceptual models
-        perceptual_model_conv1, perceptual_model_conv2, perceptual_model_conv3 = perceptual_models
+        perceptual_model_conv1, perceptual_model_conv2, perceptual_model_conv3 = self.perceptual_models
 
         # Convert single-channel images to RGB
         y_true_rgb = tf.repeat(self.y_true, 3, axis=-1)
