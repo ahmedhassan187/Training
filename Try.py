@@ -1,7 +1,9 @@
 from dataloader import DataLoader
 from losses_metrics import losses
 import numpy as np
+import matplotlib.pyplot as plt
 BATCH_SIZE = 64
+
 
 
 img_true = np.random.randn(10, 256, 256, 1)
@@ -28,3 +30,10 @@ data_loader_Motion_Simulated.split_data()
 train_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('train')
 test_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('test')
 validation_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('validation')
+for i, ((motion_before, motion, motion_after), free) in enumerate(train_dataset_Motion_Simulated):
+    plt.subplot(121)
+    plt.imshow(motion[9][90],cmap="gray")
+    plt.subplot(122)
+    plt.imshow(free[9][90],cmap="gray")
+    plt.show()
+    break
