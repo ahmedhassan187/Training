@@ -11,6 +11,7 @@ from skimage import img_as_float
 
 class DataLoader:
     def __init__(self, data_path, view, data_id, split_ratio=None, crop=False, batch_size=None, split_json_path=None):
+        print("Done")
         self.data_path = data_path
         self.split_ratio = split_ratio
         self.all_subjects = None
