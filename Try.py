@@ -33,8 +33,8 @@ validation_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('va
 for i, ((motion_before, motion, motion_after), free) in enumerate(train_dataset_Motion_Simulated):
     plt.subplot(121)
     print(motion.shape)
-    plt.imshow(motion[9][90],cmap="gray")
+    plt.imshow(motion[9],cmap="gray")
     plt.subplot(122)
-    plt.imshow(free[9][90],cmap="gray")
+    plt.imshow(free[9],cmap="gray")
     plt.show()
     break
