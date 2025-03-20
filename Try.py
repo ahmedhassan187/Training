@@ -4,8 +4,8 @@ import numpy as np
 BATCH_SIZE = 64
 
 
-img_true = np.random.randint((10,256,256))
-img_pred = np.random.randint((10,256,256))
+img_true = np.random.randint((10,256,256,1))
+img_pred = np.random.randint((10,256,256,1))
 
 losses_class = losses(img_true,img_pred)
 print(f"Psnr for the Random images is = {losses_class.psnr()}")
