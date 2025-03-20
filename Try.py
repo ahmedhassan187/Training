@@ -22,3 +22,9 @@ data_loader_Motion_Simulated = DataLoader(
     split_json_path=None
 )
 
+data_loader_Motion_Simulated.split_data()
+    
+
+train_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('train')
+test_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('test')
+validation_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('validation')
