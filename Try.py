@@ -15,13 +15,16 @@ parser.add_argument('variable', type=str, nargs='?', default=None, help="The var
 args = parser.parse_args()
 
 
-data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data/ds004795-download","mr":"/kaggle/input/mmmai-regist-data","brats":"/kaggle/input/brats-motion-data"}
+data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data/ds004795-download","mr":"/kaggle/input/mmmai-regist-data/MR-ART-Regist","brats":"/kaggle/input/brats-motion-data/new_Brats_motion_data"}
+data_ids = {"mr-sim":"Motion_Simulated","mr":"Motion","brats":"BraTS"}
+
 if args.variable  not in list(data_pathes.keys()):
     print(f"The  dataset {args.variable} isn't supported ")
-    dataset_path = "mr-sim"
+    # dataset_path = "mr-sim"
 else:
     print("seleceted dataset done")
     dataset_path = data_pathes[args.variable]
+    data_id = data_ids[args.variable]
 
 
 img_true = np.random.randn(10, 256, 256, 1)
@@ -37,7 +40,7 @@ data_loader_Motion_Simulated = DataLoader(
     data_path=dataset_path,
     split_ratio=[0.7, 0.2, 0.1],
     view="Axial",
-    data_id="Motion_Simulated",
+    data_id=data_id,
     crop=False,
     batch_size=BATCH_SIZE,
     split_json_path=None
@@ -80,8 +83,8 @@ np.save("base_losses_.npy", base_losses)
 np.save("comb_losses_.npy", comb_losses)
 
 # ✅ Load later like this (if needed):
-# base_losses = np.load("/kaggle/working/base_losses_.npy")
-# comb_losses = np.load("/kaggle/working/comb_losses_.npy")
+base_losses = np.load("/kaggle/working/base_losses_.npy")
+comb_losses = np.load("/kaggle/working/comb_losses_.npy")
 
 # ✅ Adaptive loss normalization
 try:
