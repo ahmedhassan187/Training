@@ -11,20 +11,20 @@ import argparse
 BATCH_SIZE = 64
 # argument parser to select the dataset we will work on 
 parser = argparse.ArgumentParser(description="Process a variable.")
-parser.add_argument('variable', type=str, nargs='?', default=None, help="The variable to process (optional)")
+parser.add_argument('-d', type=str, nargs='?', default=None, help="The variable to process (optional)")
 args = parser.parse_args()
 
+print(args.d) 
+# data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data/ds004795-download","mr":"/kaggle/input/mmmai-regist-data/MR-ART-Regist","brats":"/kaggle/input/brats-motion-data/new_Brats_motion_data"}
+# data_ids = {"mr-sim":"Motion_Simulated","mr":"Motion","brats":"BraTS"}
 
-data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data/ds004795-download","mr":"/kaggle/input/mmmai-regist-data/MR-ART-Regist","brats":"/kaggle/input/brats-motion-data/new_Brats_motion_data"}
-data_ids = {"mr-sim":"Motion_Simulated","mr":"Motion","brats":"BraTS"}
-
-if args.variable  not in list(data_pathes.keys()):
-    print(f"The  dataset {args.variable} isn't supported ")
+# if args.variable  not in list(data_pathes.keys()):
+    # print(f"The  dataset {args.variable} isn't supported ")
     # dataset_path = "mr-sim"
-else:
-    print("seleceted dataset done")
-    dataset_path = data_pathes[args.variable]
-    data_id = data_ids[args.variable]
+# else:
+    # print("seleceted dataset done")
+    # dataset_path = data_pathes[args.variable]
+    # data_id = data_ids[args.variable]
 
 
 img_true = np.random.randn(10, 256, 256, 1)
