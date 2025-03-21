@@ -14,9 +14,9 @@ parser = argparse.ArgumentParser(description="Process a variable.")
 parser.add_argument('-d', type=str, nargs='?', default=None, help="The variable to process (optional)")
 args = parser.parse_args()
 
-print(args.d) 
+dataset_path = args.d
 # data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data/ds004795-download","mr":"/kaggle/input/mmmai-regist-data/MR-ART-Regist","brats":"/kaggle/input/brats-motion-data/new_Brats_motion_data"}
-# data_ids = {"mr-sim":"Motion_Simulated","mr":"Motion","brats":"BraTS"}
+data_ids = {"/kaggle/input/mmmai-simulated-data/ds004795-download":"Motion_Simulated","/kaggle/input/mmmai-regist-data/MR-ART-Regist":"Motion","/kaggle/input/brats-motion-data/new_Brats_motion_data":"BraTS"}
 
 # if args.variable  not in list(data_pathes.keys()):
     # print(f"The  dataset {args.variable} isn't supported ")
@@ -40,7 +40,7 @@ data_loader_Motion_Simulated = DataLoader(
     data_path=dataset_path,
     split_ratio=[0.7, 0.2, 0.1],
     view="Axial",
-    data_id=data_id,
+    data_id=data_ids[dataset_path],
     crop=False,
     batch_size=BATCH_SIZE,
     split_json_path=None
