@@ -1,13 +1,25 @@
 from dataloader import DataLoader
 from losses_metrics import losses
+from adapti_multi_loss_normalization import multi_loss
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
 from tqdm import tqdm
-from adapti_multi_loss_normalization import multi_loss
-BATCH_SIZE = 64
+import argparse
 
+BATCH_SIZE = 64
+# argument parser to select the dataset we will work on 
+parser = argparse.ArgumentParser(description="Process a variable.")
+parser.add_argument('variable', type=str, nargs='?', default=None, help="The variable to process (optional)")
+args = parser.parse_args()
+
+
+data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data","mr":"/kaggle/input/mmmai-regist-data","brats":"/kaggle/input/brats-motion-data"}
+if args.variable  not in list(data_pathes.keys()):
+    print(f"The  dataset {args.variable} isn't supported ")
+else:
+    dataset_path = data_pathes[args.variable]
 
 
 img_true = np.random.randn(10, 256, 256, 1)
@@ -20,7 +32,7 @@ print(f"SSIM_Loss for the Random images is = {losses_class.ssim_loss()}")
 print(f"SSIM_socre for the Random images is = {losses_class.ssim_score()}")
 print(f"Per_loss for the Random images is = {losses_class.perceptual_loss()}")
 data_loader_Motion_Simulated = DataLoader(
-    data_path="/kaggle/input/mmmai-simulated-data/ds004795-download",
+    data_path=dataset_path,
     split_ratio=[0.7, 0.2, 0.1],
     view="Axial",
     data_id="Motion_Simulated",
