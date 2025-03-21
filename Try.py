@@ -20,6 +20,7 @@ if args.variable  not in list(data_pathes.keys()):
     print(f"The  dataset {args.variable} isn't supported ")
     dataset_path = "mr-sim"
 else:
+    print("seleceted dataset done")
     dataset_path = data_pathes[args.variable]
 
 
