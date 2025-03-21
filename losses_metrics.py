@@ -6,6 +6,10 @@ class losses():
         self.y_true = img_true
         self.y_pred = img_pred
         self.perceptual_models = self.init_vgg16_model()
+    def update_values(self, new_y_true, new_y_pred):
+            # Method to update y_true and y_pred
+        self.y_true = new_y_true
+        self.y_pred = new_y_pred
     def init_vgg16_model(self):
         """
         Initialize a pre-trained VGG16 model for feature extraction.

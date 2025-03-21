@@ -41,7 +41,7 @@ base_losses = []
 comb_losses = []
 
 for (motion_before, motion, motion_after), free in tqdm(train_dataset_Motion_Simulated):
-    losses_class(free,motion)
+    losses_class.update_values(free,motion)
     ssim = losses_class.ssim_loss()# Tensor
     ssim = tf.math.reduce_mean(ssim)
     perceptual = losses_class.perceptual_loss()  # Tensor
