@@ -18,6 +18,7 @@ args = parser.parse_args()
 data_pathes = {"mr-sim":"/kaggle/input/mmmai-simulated-data","mr":"/kaggle/input/mmmai-regist-data","brats":"/kaggle/input/brats-motion-data"}
 if args.variable  not in list(data_pathes.keys()):
     print(f"The  dataset {args.variable} isn't supported ")
+    dataset_path = "mr-sim"
 else:
     dataset_path = data_pathes[args.variable]
 
