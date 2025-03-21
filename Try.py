@@ -78,8 +78,8 @@ np.save("base_losses_.npy", base_losses)
 np.save("comb_losses_.npy", comb_losses)
 
 # ✅ Load later like this (if needed):
-base_losses = np.load("/kaggle/working/base_losses_.npy")
-comb_losses = np.load("/kaggle/working/comb_losses_.npy")
+# base_losses = np.load("/kaggle/working/base_losses_.npy")
+# comb_losses = np.load("/kaggle/working/comb_losses_.npy")
 
 # ✅ Adaptive loss normalization
 try:
