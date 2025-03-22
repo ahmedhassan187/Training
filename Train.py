@@ -95,6 +95,9 @@ def wat_unet(dataset_path):
         comb_losses = []
         for (motion_before, motion, motion_after), free in tqdm(train_dataset):
             # print(f"shape of motion is {motion.shape} and the shape of free is {free.shape}")
+            if free.shape[0] != 10 or motion.shape[0] != 10:
+                print(f"Wrong shape detected free shape  =  {free.shape} while motion shape = {motion.shape}")
+                continue
             ssim = loss_obj.ssim_loss(free, motion)  # Tensor
             ssim = tf.math.reduce_mean(ssim)
             perceptual = loss_obj.perceptual_loss(free, motion)  # Tensor
