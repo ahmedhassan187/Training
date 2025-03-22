@@ -34,7 +34,7 @@ data_ids = {"/kaggle/input/mmmai-simulated-data/ds004795-download":"Motion_Simul
     # dataset_path = data_pathes[args.variable]
     # data_id = data_ids[args.variable]
 
-Model = stacked_unets.Correction_Multi_input(256,256)
+Model = StackedUNets.Correction_Multi_input(256,256)
 Model.compile(loss=losses.ssim_loss(), optimizer=Adam(learning_rate=LEARNING_RATE),
                       metrics=[ssim_score, 'mse', psnr])
         
