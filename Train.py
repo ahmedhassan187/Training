@@ -35,7 +35,7 @@ def main():
         HEIGHT = 256
         WIDTH = 256
         LEARNING_RATE = 0.001
-        BATCH_SIZE = 64
+        BATCH_SIZE = 20
         NB_EPOCH = 10
         parser = argparse.ArgumentParser(description="Process a variable.")
         parser.add_argument('-d', type=str, nargs='?', default=None, help="The variable to process (optional)")
