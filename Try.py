@@ -1,7 +1,7 @@
 from dataloader import DataLoader
 from losses_metrics import losses
 from adapti_multi_loss_normalization import multi_loss
-from WAT_stacked_uents import stacked_unets
+from WAT_stacked_uents import StackedUNets
 
 import math
 import pandas as pd
