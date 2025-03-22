@@ -2,7 +2,7 @@ import math
 import argparse
 import tensorflow as tf
 import numpy as np
-import tqdm
+from tqdm import tqdm
 from tensorflow.keras.callbacks import CSVLogger, LearningRateScheduler, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model
@@ -23,8 +23,11 @@ data_ids = {
     "/kaggle/input/mmmai-regist-data/MR-ART-Regist": "Motion",
     "/kaggle/input/brats-motion-data/new_Brats_motion_data": "BraTS"
 }
-w_comb = 1
-b_comb = 0
+
+# Default values for w_comb and b_comb
+w_comb = 0.05807468295097351  # Default weight
+b_comb = 0.009354699403047562  # Default bias
+
 def exponential_lr(epoch, LEARNING_RATE):
     """Learning rate scheduler function."""
     if epoch < 10:
@@ -32,18 +35,20 @@ def exponential_lr(epoch, LEARNING_RATE):
     else:
         return LEARNING_RATE * math.exp(0.1 * (10 - epoch))  # lr decreases exponentially by a factor of 10
 
-def total_loss(y_true, y_pred):
-    """Custom loss function combining perceptual and SSIM losses."""
-    perceptual = loss_obj.perceptual_loss(y_true, y_pred)
-    ssim = loss_obj.ssim_loss(y_true, y_pred)
-    print(f"W_comb is {w_comb} and b_comb is {b_comb}")
-    # scaled_perceptual = perceptual * 0.05807468295097351
-    scaled_perceptual = perceptual * w_comb
-
-    adjusted_perceptual = scaled_perceptual + b_comb
-    
-    total = (ssim + adjusted_perceptual) / 2
-    return total
+def total_loss(w_comb, b_comb):
+    """Wrapper function to create a total_loss function with dynamic w_comb and b_comb."""
+    def loss(y_true, y_pred):
+        """Custom loss function combining perceptual and SSIM losses."""
+        perceptual = loss_obj.perceptual_loss(y_true, y_pred)
+        ssim = loss_obj.ssim_loss(y_true, y_pred)
+        print(f"W_comb is {w_comb} and b_comb is {b_comb}")
+        
+        scaled_perceptual = perceptual * w_comb
+        adjusted_perceptual = scaled_perceptual + b_comb
+        
+        total = (ssim + adjusted_perceptual) / 2
+        return total
+    return loss
 
 def load_data_loader(dataset_path, batch_size):
     """Load and split data using DataLoader."""
@@ -80,9 +85,43 @@ def wat_unet(dataset_path):
         # Initialize model
         model = StackedUNets().Correction_Multi_input(HEIGHT, WIDTH)
         
-        # Compile model
+        # Load data
+        data_loader = load_data_loader(dataset_path, BATCH_SIZE)
+        train_dataset = data_loader.generator('train')
+        validation_dataset = data_loader.generator('validation')
+
+        # Compute base_losses and comb_losses
+        base_losses = []
+        comb_losses = []
+        for (motion_before, motion, motion_after), free in tqdm(train_dataset):
+            ssim = loss_obj.ssim_loss(free, motion)  # Tensor
+            ssim = tf.math.reduce_mean(ssim)
+            perceptual = loss_obj.perceptual_loss(free, motion)  # Tensor
+            base_losses.append(ssim)
+            comb_losses.append(perceptual)
+
+        # Convert lists to NumPy arrays
+        base_losses = tf.stack(base_losses).numpy()
+        comb_losses = tf.stack(comb_losses).numpy()
+
+        # Save arrays to disk (optional)
+        np.save("base_losses_.npy", base_losses)
+        np.save("comb_losses_.npy", comb_losses)
+
+        # Calculate adaptive weights and biases
+        try:
+            _, w_comb, b_comb = multi.adaptive_multi_loss_normalization(base_losses, comb_losses)
+            print(f"Weight (w_comb): {w_comb:.4f}")
+            print(f"Bias (b_comb): {b_comb:.4f}")
+        except ValueError as e:
+            print(f"Error: {e}")
+            # Fallback to default values if adaptive normalization fails
+            w_comb = 0.05807468295097351
+            b_comb = 0.009354699403047562
+
+        # Compile model with updated total_loss function
         model.compile(
-            loss=total_loss,
+            loss=total_loss(w_comb, b_comb),  # Pass w_comb and b_comb to total_loss
             optimizer=Adam(learning_rate=LEARNING_RATE),
             metrics=[loss_obj.ssim_score, 'mse', loss_obj.psnr]
         )
@@ -101,40 +140,6 @@ def wat_unet(dataset_path):
             verbose=1
         )
 
-        # Load data
-        data_loader = load_data_loader(dataset_path, BATCH_SIZE)
-        train_dataset = data_loader.generator('train')
-        
-        validation_dataset = data_loader.generator('validation')
-        for (motion_before, motion, motion_after), free in tqdm(train_dataset):
-            ssim = loss_obj.ssim_loss(free,motion)# Tensor
-            ssim = tf.math.reduce_mean(ssim)
-            perceptual = loss_obj.perceptual_loss(free,motion)  # Tensor
-            base_losses.append(ssim)
-            comb_losses.append(perceptual)
-    # print(len(base_losses))
-    # Convert all at once — now losses become NumPy arrays
-        base_losses = tf.stack(base_losses).numpy()
-        comb_losses = tf.stack(comb_losses).numpy()
-
-        # print(comb_losses)
-        # ✅ Save arrays to disk
-        np.save("base_losses_.npy", base_losses)
-        np.save("comb_losses_.npy", comb_losses)
-
-        # ✅ Load later like this (if needed):
-        base_losses = np.load("/kaggle/working/Training/base_losses_.npy")
-        comb_losses = np.load("/kaggle/working/Training/comb_losses_.npy")
-
-        # ✅ Adaptive loss normalization
-        try:
-            total_loss, w_comb, b_comb = multi.adaptive_multi_loss_normalization(base_losses, comb_losses)
-            print(f"Total Loss: {total_loss:.4f}")
-            print(f"Weight (w_comb): {w_comb:.4f}")
-            print(f"Bias (b_comb): {b_comb:.4f}")
-        except ValueError as e:
-            print(f"Error: {e}")
-        
         # Train model
         history = model.fit(
             train_dataset,
@@ -160,104 +165,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-# from losses_metrics import losses
-# from WAT_stacked_uents import StackedUNets
-# from dataloader import DataLoader
-
-# import math
-# import pandas as pd
-# import tensorflow as tf
-# import argparse
-# from tensorflow.keras.callbacks import CSVLogger, LearningRateScheduler, ModelCheckpoint
-# from tensorflow.keras.optimizers import Adam
-# from tensorflow.keras.models import model_from_json, load_model
-# from tensorflow.keras.utils import plot_model
-
-# loss_obj = losses()
-
-# data_ids = {"/kaggle/input/mmmai-simulated-data/ds004795-download":"Motion_Simulated","/kaggle/input/mmmai-regist-data/MR-ART-Regist":"Motion","/kaggle/input/brats-motion-data/new_Brats_motion_data":"BraTS"}
-# def exponential_lr(epoch, LEARNING_RATE):
-#     if epoch < 10:
-#         return LEARNING_RATE
-#     else:
-#         return LEARNING_RATE * math.exp(0.1 * (10 - epoch)) # lr decreases exponentially by a factor of 10
-    
-# def total_loss(y_true, y_pred):
-#     perceptual = loss_obj.perceptual_loss(y_true, y_pred)
-#     ssim = loss_obj.ssim_loss(y_true, y_pred)
-    
-#     scaled_perceptual = (perceptual*0.05807468295097351)
-#     adjusted_perceptual = (scaled_perceptual+0.009354699403047562)
-    
-#     total = (ssim+adjusted_perceptual)/2
-#     return total
-# def main():
-#         parser = argparse.ArgumentParser(description="Process a variable.")
-#         parser.add_argument('-d', type=str, nargs='?', default=None, help="The variable to process (optional)")
-#         args = parser.parse_args()
-#         dataset_path = args.d
-# def wat_unet():
-#         print('---------------------------------')
-#         print('Model Training ...')
-#         print('---------------------------------')
-#         HEIGHT = 256
-#         WIDTH = 256
-#         LEARNING_RATE = 0.001
-#         BATCH_SIZE = 5
-#         NB_EPOCH = 10
-
-
-#         model = StackedUNets().Correction_Multi_input(HEIGHT, WIDTH)
-#         # load("/kaggle/input/wavelet-style/WAT_style_stacked_05_val_loss_0.0595.h5")
-# #         print(model.summary())
-        
-#         # model = load_model("/kaggle/input/stackedunet-regist-final-wavtf-normal-dataset/stacked_model_45_val_loss_0.1759.h5",
-#                            # custom_objects={'total_loss':total_loss, 'ssim_score': ssim_score, 'psnr':psnr, 'K':K})
-        
-#         WEIGHTS_PATH = "/kaggle/working/"
-#         csv_logger = CSVLogger(f'{WEIGHTS_PATH}_Loss_Acc.csv', append=True, separator=',')
-#         reduce_lr = LearningRateScheduler(exponential_lr)
-        
-#         model.compile(loss=total_loss, optimizer=Adam(learning_rate=LEARNING_RATE),
-#                       metrics=[loss_obj.ssim_score, 'mse', loss_obj.psnr])
-        
-#         checkpoint_path = '/kaggle/working/WAT_style_stacked_{epoch:02d}_val_loss_{val_loss:.4f}.h5'
-#         model_checkpoint = ModelCheckpoint(checkpoint_path,
-#                                    monitor='val_loss',
-#                                    save_best_only=False,
-#                                    save_weights_only=False,
-#                                    mode='min',
-#                                    verbose=1)
-#         data_loader_Motion_Simulated = DataLoader(
-#             data_path=dataset_path,
-#             split_ratio=[0.7, 0.2, 0.1],
-#             view="Axial",
-#             data_id=data_ids[dataset_path],
-#             crop=False,
-#             batch_size=BATCH_SIZE,
-#             split_json_path=None
-#         )
-
-#         data_loader_Motion_Simulated.split_data()
-            
-
-#         train_dataset = data_loader_Motion_Simulated.generator('train')
-#         test_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('test')
-#         validation_dataset= data_loader_Motion_Simulated.generator('validation') 
-#         for (mb,m,ma),f in train_dataset:
-#              print(m.shape)
-#              break
-#         hist = model.fit(train_dataset,
-#                          epochs=NB_EPOCH,
-#                          verbose=1,
-#                          validation_data=validation_dataset,
-#                          callbacks=[csv_logger, reduce_lr, model_checkpoint])
-
-
-# if __name__ == "__main__":
-#     if args.d == "W":
-#          wat_unet()
-#     # main()
