@@ -1,12 +1,20 @@
 from dataloader import DataLoader
 from losses_metrics import losses
 from adapti_multi_loss_normalization import multi_loss
-import numpy as np
-import matplotlib.pyplot as plt
+from WAT_stacked_uents import stacked_unets
+
+import math
+import pandas as pd
 import tensorflow as tf
+import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 import argparse
+from tensorflow.keras.callbacks import CSVLogger, LearningRateScheduler, ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.models import model_from_json, load_model
+from tensorflow.keras.utils import plot_model
+
 
 BATCH_SIZE = 64
 # argument parser to select the dataset we will work on 
@@ -26,6 +34,23 @@ data_ids = {"/kaggle/input/mmmai-simulated-data/ds004795-download":"Motion_Simul
     # dataset_path = data_pathes[args.variable]
     # data_id = data_ids[args.variable]
 
+Model = stacked_unets.Correction_Multi_input(256,256)
+Model.compile(loss=losses.ssim_loss(), optimizer=Adam(learning_rate=LEARNING_RATE),
+                      metrics=[ssim_score, 'mse', psnr])
+        
+checkpoint_path = '/kaggle/working/WAT_style_stacked_{epoch:02d}_val_loss_{val_loss:.4f}.h5'
+model_checkpoint = ModelCheckpoint(checkpoint_path,
+                                   monitor='val_loss',
+                                   save_best_only=False,
+                                   save_weights_only=False,
+                                   mode='min',
+                                   verbose=1)
+        
+hist = Model.fit(train_dataset,
+                         epochs=NB_EPOCH,
+                         verbose=1,
+                         validation_data=validation_dataset,
+                         callbacks=[csv_logger, reduce_lr, model_checkpoint])
 
 img_true = np.random.randn(10, 256, 256, 1)
 img_pred = np.random.randn(10, 256, 256, 1)
