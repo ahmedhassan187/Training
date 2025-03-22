@@ -34,6 +34,7 @@ data_ids = {"/kaggle/input/mmmai-simulated-data/ds004795-download":"Motion_Simul
     # dataset_path = data_pathes[args.variable]
     # data_id = data_ids[args.variable]
 LEARNING_RATE = 0.001
+NB_EPOCH = 10
 Model = StackedUNets().Correction_Multi_input(256,256)
 
 Model.compile(loss=losses().ssim_loss, optimizer=Adam(learning_rate=LEARNING_RATE),
@@ -51,9 +52,9 @@ img_true = np.random.randn(10, 256, 256, 1)
 img_pred = np.random.randn(10, 256, 256, 1)
 hist = Model.fit(img_true,img_pred,
                          epochs=NB_EPOCH,
-                         verbose=1,
-                         validation_data=validation_dataset,
-                         callbacks=[csv_logger, reduce_lr, model_checkpoint])
+                         verbose=1)
+                        #  validation_data=validation_dataset,
+                        #  callbacks=[csv_logger, reduce_lr, model_checkpoint])
 losses_class = losses(img_true,img_pred)
 multi = multi_loss()
 print(f"Psnr for the Random images is = {losses_class.psnr()}")
