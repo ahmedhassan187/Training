@@ -93,10 +93,10 @@ class losses():
 
         return total_loss
 
-    def ssim_loss(self):
+    def ssim_loss(self,y_true,y_pred):
         score = tf.image.ssim(
-        self.y_true,
-        self.y_pred,
+        y_true,
+        y_pred,
         max_val=1.0
         )
         
