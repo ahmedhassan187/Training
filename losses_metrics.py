@@ -6,10 +6,10 @@ class losses():
         self.y_true = img_true
         self.y_pred = img_pred
         self.perceptual_models = self.init_vgg16_model()
-    def update_values(self, new_y_true, new_y_pred):
+    # def update_values(self, new_y_true, new_y_pred):
             # Method to update y_true and y_pred
-        self.y_true = new_y_true
-        self.y_pred = new_y_pred
+        # self.y_true = new_y_true
+        # self.y_pred = new_y_pred
     def init_vgg16_model(self):
         """
         Initialize a pre-trained VGG16 model for feature extraction.
@@ -44,7 +44,7 @@ class losses():
     # Initialize VGG16 model for feature extraction
 
 
-    def perceptual_loss(self):
+    def perceptual_loss(self,y_true,y_pred):
         """
         Custom loss function for perceptual loss.
 
@@ -65,8 +65,8 @@ class losses():
         perceptual_model_conv1, perceptual_model_conv2, perceptual_model_conv3 = self.perceptual_models
 
         # Convert single-channel images to RGB
-        y_true_rgb = tf.repeat(self.y_true, 3, axis=-1)
-        y_pred_rgb = tf.repeat(self.y_pred, 3, axis=-1)
+        y_true_rgb = tf.repeat(y_true, 3, axis=-1)
+        y_pred_rgb = tf.repeat(y_pred, 3, axis=-1)
 
         # Preprocess images for VGG16
         y_true_processed = tf.keras.applications.vgg16.preprocess_input(y_true_rgb)
@@ -103,13 +103,13 @@ class losses():
         loss = (1-score)/2
         return loss
         
-    def psnr(self):
-        return tf.reduce_mean(tf.image.psnr(self.y_true, self.y_pred, max_val=1.0))
+    def psnr(self,y_true,y_pred):
+        return tf.reduce_mean(tf.image.psnr(y_true, y_pred, max_val=1.0))
 
-    def ssim_score(self):
+    def ssim_score(self.y_true,y_pred):
         score = tf.image.ssim(
-        self.y_true,
-        self.y_pred,
+        y_true,
+        y_pred,
         max_val=1.0
         )
         return score
