@@ -2,9 +2,9 @@ import tensorflow as tf
 from tensorflow.keras.applications import VGG16
 from tensorflow.keras.models import Model
 class losses():
-    def __init__(self,img_true,img_pred):
-        self.y_true = img_true
-        self.y_pred = img_pred
+    def __init__(self):
+        # self.y_true = img_true
+        # self.y_pred = img_pred
         self.perceptual_models = self.init_vgg16_model()
     # def update_values(self, new_y_true, new_y_pred):
             # Method to update y_true and y_pred
