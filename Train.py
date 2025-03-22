@@ -25,8 +25,8 @@ data_ids = {
 }
 
 # Default values for w_comb and b_comb
-w_comb = 0.05807468295097351  # Default weight
-b_comb = 0.009354699403047562  # Default bias
+w_comb = 1  # Default weight
+b_comb = 0  # Default bias
 
 def exponential_lr(epoch, LEARNING_RATE):
     """Learning rate scheduler function."""
