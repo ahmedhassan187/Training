@@ -106,7 +106,7 @@ class losses():
     def psnr(self,y_true,y_pred):
         return tf.reduce_mean(tf.image.psnr(y_true, y_pred, max_val=1.0))
 
-    def ssim_score(self.y_true,y_pred):
+    def ssim_score(self,y_true,y_pred):
         score = tf.image.ssim(
         y_true,
         y_pred,
