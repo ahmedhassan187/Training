@@ -54,7 +54,7 @@ def main():
         reduce_lr = LearningRateScheduler(exponential_lr)
         
         model.compile(loss=total_loss, optimizer=Adam(learning_rate=LEARNING_RATE),
-                      metrics=[losses().ssim_score, 'mse', losses.psnr])
+                      metrics=[losses().ssim_score, 'mse', losses().psnr])
         
         checkpoint_path = '/kaggle/working/WAT_style_stacked_{epoch:02d}_val_loss_{val_loss:.4f}.h5'
         model_checkpoint = ModelCheckpoint(checkpoint_path,
