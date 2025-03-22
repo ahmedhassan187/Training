@@ -46,15 +46,13 @@ model_checkpoint = ModelCheckpoint(checkpoint_path,
                                    mode='min',
                                    verbose=1)
         
-hist = Model.fit(train_dataset,
+img_true = np.random.randn(10, 256, 256, 1)
+img_pred = np.random.randn(10, 256, 256, 1)
+hist = Model.fit(img_true,img_pred,
                          epochs=NB_EPOCH,
                          verbose=1,
                          validation_data=validation_dataset,
                          callbacks=[csv_logger, reduce_lr, model_checkpoint])
-
-img_true = np.random.randn(10, 256, 256, 1)
-img_pred = np.random.randn(10, 256, 256, 1)
-
 losses_class = losses(img_true,img_pred)
 multi = multi_loss()
 print(f"Psnr for the Random images is = {losses_class.psnr()}")
