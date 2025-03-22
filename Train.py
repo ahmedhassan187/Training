@@ -94,9 +94,9 @@ def wat_unet(dataset_path):
         base_losses = []
         comb_losses = []
         for (motion_before, motion, motion_after), free in tqdm(train_dataset):
-            print(f"shape of motion is {motion.shape} and the shape of free is {free.shape}")
+            # print(f"shape of motion is {motion.shape} and the shape of free is {free.shape}")
             ssim = loss_obj.ssim_loss(free, motion)  # Tensor
-            ssim = tf.math.reduce_mean(ssim)
+            # ssim = tf.math.reduce_mean(ssim)
             perceptual = loss_obj.perceptual_loss(free, motion)  # Tensor
             base_losses.append(ssim)
             comb_losses.append(perceptual)
