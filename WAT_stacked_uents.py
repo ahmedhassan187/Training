@@ -368,7 +368,7 @@ class stacked_unets():
 
         output = Conv2D(1, (3, 3), data_format=IMAGE_ORDERING, padding='same')(deconv3)
         # 	output = Activation('sigmoid')(output)
-        output = Activation('tanh')(output)
+        output = Activation('sigmoid')(output)
         return output
 
 
@@ -380,8 +380,6 @@ class stacked_unets():
         img_input_1 = Input(shape=(input_height, input_width, 1))
         img_input_2 = Input(shape=(input_height, input_width, 1))
         img_input_3 = Input(shape=(input_height, input_width, 1))
-        norm_list = Input(shape=(1, 1, 2048))
-        style_code_1 = Style_block(img_input_2)
     # 	kk = 32
         kk = 64
         conv1 = Conv2D(kk, (3, 3), data_format=IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_1) # dilation_rate=6
@@ -395,13 +393,11 @@ class stacked_unets():
         conv3 = Activation('relu')(conv3)
 
         input_concat = concatenate([conv1, conv2, conv3], axis=MERGE_AXIS)  #conv4
-        # dataset = tf.data.Dataset.from_tensor_slices((img_input_1, img_input_2, img_input_3)
 
         ## Two Stacked Nets:
-        pred_1  = UNet(input_concat,style_code_1)
-        style_code_2 = Style_block(pred_1)
+        pred_1  = UNet(input_concat)
         input_2 = concatenate([input_concat, pred_1], axis=MERGE_AXIS)
-        pred_2  = UNet(input_2,style_code_2) #
+        pred_2  = UNet(input_2) #
 
         model = Model(inputs=[img_input_1,img_input_2,img_input_3], outputs=pred_2)
 
