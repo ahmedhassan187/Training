@@ -41,7 +41,7 @@ def total_loss(w_comb, b_comb):
         """Custom loss function combining perceptual and SSIM losses."""
         perceptual = loss_obj.perceptual_loss(y_true, y_pred)
         ssim = loss_obj.ssim_loss(y_true, y_pred)
-        print(f"W_comb is {w_comb} and b_comb is {b_comb}")
+        # print(f"W_comb is {w_comb} and b_comb is {b_comb}")
         
         scaled_perceptual = perceptual * w_comb
         adjusted_perceptual = scaled_perceptual + b_comb
@@ -97,7 +97,7 @@ def wat_unet(dataset_path):
             # print(f"shape of motion is {motion.shape} and the shape of free is {free.shape}")
             if free.shape[0] != 10 or motion.shape[0] != 10:
                 print(f"Wrong shape detected free shape  =  {free.shape} while motion shape = {motion.shape}")
-                continue
+                # continue
             ssim = loss_obj.ssim_loss(free, motion)  # Tensor
             ssim = tf.math.reduce_mean(ssim)
             perceptual = loss_obj.perceptual_loss(free, motion)  # Tensor
