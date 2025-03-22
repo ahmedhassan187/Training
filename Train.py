@@ -94,6 +94,7 @@ def wat_unet(dataset_path):
         base_losses = []
         comb_losses = []
         for (motion_before, motion, motion_after), free in tqdm(train_dataset):
+            print(f"shape of motion is {motion.shape} and the shape of free is {free.shape}")
             ssim = loss_obj.ssim_loss(free, motion)  # Tensor
             ssim = tf.math.reduce_mean(ssim)
             perceptual = loss_obj.perceptual_loss(free, motion)  # Tensor
@@ -116,8 +117,8 @@ def wat_unet(dataset_path):
         except ValueError as e:
             print(f"Error: {e}")
             # Fallback to default values if adaptive normalization fails
-            w_comb = 0.05807468295097351
-            b_comb = 0.009354699403047562
+            w_comb = 1
+            b_comb = 0
 
         # Compile model with updated total_loss function
         model.compile(
