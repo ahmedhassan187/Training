@@ -35,7 +35,7 @@ data_ids = {"/kaggle/input/mmmai-simulated-data/ds004795-download":"Motion_Simul
     # data_id = data_ids[args.variable]
 
 Model = StackedUNets().Correction_Multi_input(256,256)
-Model.compile(loss=losses.ssim_loss(), optimizer=Adam(learning_rate=LEARNING_RATE),
+Model.compile(loss=losses().ssim_loss(), optimizer=Adam(learning_rate=LEARNING_RATE),
                       metrics=[ssim_score, 'mse', psnr])
         
 checkpoint_path = '/kaggle/working/WAT_style_stacked_{epoch:02d}_val_loss_{val_loss:.4f}.h5'
