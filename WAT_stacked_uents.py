@@ -9,16 +9,16 @@ import pywt
 
 class stacked_unets():
     def __init__(self):
-        self.IMAGE_ORDERING_CHANNELS_LAST = "channels_last"
-        self.IMAGE_ORDERING_CHANNELS_FIRST = "channels_first"
+        self.self.IMAGE_ORDERING_CHANNELS_LAST = "channels_last"
+        self.self.IMAGE_ORDERING_CHANNELS_FIRST = "channels_first"
 
-        # Default IMAGE_ORDERING = channels_last
-        self.IMAGE_ORDERING = self.IMAGE_ORDERING_CHANNELS_LAST
+        # Default self.IMAGE_ORDERING = channels_last
+        self.self.IMAGE_ORDERING = self.self.IMAGE_ORDERING_CHANNELS_LAST
 
-        if self.IMAGE_ORDERING == 'channels_first':
-	        MERGE_AXIS = 1
-        elif self.IMAGE_ORDERING == 'channels_last':
-	        MERGE_AXIS = -1
+        if self.self.IMAGE_ORDERING == 'channels_first':
+	        self.self.MERGE_AXIS = 1
+        elif self.self.IMAGE_ORDERING == 'channels_last':
+	        self.self.MERGE_AXIS = -1
     # Define the Haar filters
     def haar_filter():
         low_pass = tf.constant([1, 1], dtype=tf.float32) / tf.math.sqrt(2.0)
@@ -143,13 +143,13 @@ class stacked_unets():
 
 
     def wat_layer_1(x, wat):
-        watp_prod = Conv2D(16*(2**1), (3, 3), data_format=IMAGE_ORDERING, padding='same')(wat)
+        watp_prod = Conv2D(16*(2**1), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(wat)
         watp_prod = Activation('relu')(watp_prod)
-        watp_prod = Conv2D(32*(2**1), (3, 3), data_format=IMAGE_ORDERING, padding='same')(watp_prod)
+        watp_prod = Conv2D(32*(2**1), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(watp_prod)
         
-        watp_sum = Conv2D(16*(2**1), (3, 3), data_format=IMAGE_ORDERING, padding='same')(wat)
+        watp_sum = Conv2D(16*(2**1), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(wat)
         watp_sum = Activation('relu')(watp_sum)
-        watp_sum = Conv2D(32*(2**1), (3, 3), data_format=IMAGE_ORDERING, padding='same')(watp_sum)
+        watp_sum = Conv2D(32*(2**1), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(watp_sum)
         
         x = multiply([x, watp_prod])
         x = Add()([x, watp_sum])    
@@ -158,13 +158,13 @@ class stacked_unets():
         
 
     def wat_layer_2(x, wat):
-        watp_prod = Conv2D(16*(2**2), (3, 3), data_format=IMAGE_ORDERING, padding='same')(wat)
+        watp_prod = Conv2D(16*(2**2), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(wat)
         watp_prod = Activation('relu')(watp_prod)
-        watp_prod = Conv2D(32*(2**2), (3, 3), data_format=IMAGE_ORDERING, padding='same')(watp_prod)
+        watp_prod = Conv2D(32*(2**2), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(watp_prod)
         
-        watp_sum = Conv2D(16*(2**2), (3, 3), data_format=IMAGE_ORDERING, padding='same')(wat)
+        watp_sum = Conv2D(16*(2**2), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(wat)
         watp_sum = Activation('relu')(watp_sum)
-        watp_sum = Conv2D(32*(2**2), (3, 3), data_format=IMAGE_ORDERING, padding='same')(watp_sum)
+        watp_sum = Conv2D(32*(2**2), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(watp_sum)
         
         x = multiply([x, watp_prod])
         x = Add()([x, watp_sum])    
@@ -173,13 +173,13 @@ class stacked_unets():
 
 
     def wat_layer_3(x, wat):
-        watp_prod = Conv2D(16*(2**3), (3, 3), data_format=IMAGE_ORDERING, padding='same')(wat)
+        watp_prod = Conv2D(16*(2**3), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(wat)
         watp_prod = Activation('relu')(watp_prod)
-        watp_prod = Conv2D(32*(2**3), (3, 3), data_format=IMAGE_ORDERING, padding='same')(watp_prod)
+        watp_prod = Conv2D(32*(2**3), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(watp_prod)
         
-        watp_sum = Conv2D(16*(2**3), (3, 3), data_format=IMAGE_ORDERING, padding='same')(wat)
+        watp_sum = Conv2D(16*(2**3), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(wat)
         watp_sum = Activation('relu')(watp_sum)
-        watp_sum = Conv2D(32*(2**3), (3, 3), data_format=IMAGE_ORDERING, padding='same')(watp_sum)
+        watp_sum = Conv2D(32*(2**3), (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(watp_sum)
         
         x = multiply([x, watp_prod])
         x = Add()([x, watp_sum])    
@@ -272,11 +272,11 @@ class stacked_unets():
         watp1, watp2, watp3 = wat_3(img_input)
         
         # Block 1 in Contracting Path
-        conv1 = Conv2D(k1, (3, 3), data_format=IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input)
+        conv1 = Conv2D(k1, (3, 3), data_format=self.IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input)
         conv1 = BatchNormalization()(conv1)
         conv1 = Activation(tf.nn.leaky_relu)(conv1)
         #conv1 = Dropout(0.2)(conv1)
-        conv1 = Conv2D(k1, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(conv1)
+        conv1 = Conv2D(k1, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(conv1)
         conv1 = BatchNormalization()(conv1)
         conv1 = Activation(tf.nn.leaky_relu)(conv1)
 
@@ -285,11 +285,11 @@ class stacked_unets():
         o = AveragePooling2D((2, 2), strides=(2, 2))(conv1)
 
         # Block 2 in Contracting Path
-        conv2 = Conv2D(k2, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(o)
+        conv2 = Conv2D(k2, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(o)
         conv2 = BatchNormalization()(conv2)
         conv2 = Activation(tf.nn.leaky_relu)(conv2)
     #     conv2 = Dropout(0.2)(conv2)
-        conv2 = Conv2D(k2, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(conv2)
+        conv2 = Conv2D(k2, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(conv2)
         conv2 = BatchNormalization()(conv2)
         conv2 = Activation(tf.nn.leaky_relu)(conv2)
         
@@ -300,11 +300,11 @@ class stacked_unets():
         o = AveragePooling2D((2, 2), strides=(2, 2))(conv2)
 
         # Block 3 in Contracting Path
-        conv3 = Conv2D(k3, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(o)
+        conv3 = Conv2D(k3, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(o)
         conv3 = BatchNormalization()(conv3)
         conv3 = Activation(tf.nn.leaky_relu)(conv3)
         #conv3 = Dropout(0.2)(conv3)
-        conv3 = Conv2D(k3, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(conv3)
+        conv3 = Conv2D(k3, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(conv3)
         conv3 = BatchNormalization()(conv3)
         conv3 = Activation(tf.nn.leaky_relu)(conv3)
 
@@ -315,11 +315,11 @@ class stacked_unets():
         o = AveragePooling2D((2, 2), strides=(2, 2))(conv3)
 
         # Transition layer between contracting and expansive paths:
-        conv4 = Conv2D(k4, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(o)
+        conv4 = Conv2D(k4, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(o)
         conv4 = BatchNormalization()(conv4)
         conv4 = Activation(tf.nn.leaky_relu)(conv4)
         #conv4 = Dropout(0.2)(conv4)
-        conv4 = Conv2D(k4, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(conv4)
+        conv4 = Conv2D(k4, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(conv4)
         conv4 = BatchNormalization()(conv4)
         conv4 =Activation(tf.nn.leaky_relu)(conv4)
 
@@ -328,45 +328,45 @@ class stacked_unets():
         conv4 = cbam_block(conv4)    # Convolutional Block Attention Module(CBAM) block
 
         # Block 1 in Expansive Path
-        up1 = UpSampling2D((2, 2), data_format=IMAGE_ORDERING)(conv4)
-        up1 = concatenate([up1, conv3], axis=MERGE_AXIS)
-        deconv1 =  Conv2D(k3, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(up1)
+        up1 = UpSampling2D((2, 2), data_format=self.IMAGE_ORDERING)(conv4)
+        up1 = concatenate([up1, conv3], axis=self.MERGE_AXIS)
+        deconv1 =  Conv2D(k3, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(up1)
         deconv1 = BatchNormalization()(deconv1)
         deconv1 = Activation(tf.nn.leaky_relu)(deconv1)
         #deconv1 = Dropout(0.2)(deconv1)
-        deconv1 =  Conv2D(k3, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(deconv1)
+        deconv1 =  Conv2D(k3, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(deconv1)
         deconv1 = BatchNormalization()(deconv1)
         deconv1 = Activation(tf.nn.leaky_relu)(deconv1)
 
         deconv1 = cbam_block(deconv1)    # Convolutional Block Attention Module(CBAM) block
 
         # Block 2 in Expansive Path
-        up2 = UpSampling2D((2, 2), data_format=IMAGE_ORDERING)(deconv1)
-        up2 = concatenate([up2, conv2], axis=MERGE_AXIS)
-        deconv2 = Conv2D(k2, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(up2)
+        up2 = UpSampling2D((2, 2), data_format=self.IMAGE_ORDERING)(deconv1)
+        up2 = concatenate([up2, conv2], axis=self.MERGE_AXIS)
+        deconv2 = Conv2D(k2, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(up2)
         deconv2 = BatchNormalization()(deconv2)
         deconv2 = Activation(tf.nn.leaky_relu)(deconv2)
         #deconv2 = Dropout(0.2)(deconv2)
-        deconv2 = Conv2D(k2, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(deconv2)
+        deconv2 = Conv2D(k2, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(deconv2)
         deconv2 = BatchNormalization()(deconv2)
         deconv2 = Activation(tf.nn.leaky_relu)(deconv2)
 
         deconv2 = cbam_block(deconv2)    # Convolutional Block Attention Module(CBAM) block
 
         # Block 3 in Expansive Path
-        up3 = UpSampling2D((2, 2), data_format=IMAGE_ORDERING)(deconv2)
-        up3 = concatenate([up3, conv1], axis=MERGE_AXIS)
-        deconv3 = Conv2D(k1, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(up3)
+        up3 = UpSampling2D((2, 2), data_format=self.IMAGE_ORDERING)(deconv2)
+        up3 = concatenate([up3, conv1], axis=self.MERGE_AXIS)
+        deconv3 = Conv2D(k1, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(up3)
         deconv3 = BatchNormalization()(deconv3)
         deconv3 = Activation(tf.nn.leaky_relu)(deconv3)
         #deconv3 = Dropout(0.2)(deconv3)
-        deconv3 = Conv2D(k1, (3, 3), data_format=IMAGE_ORDERING, padding='same', dilation_rate=1)(deconv3)
+        deconv3 = Conv2D(k1, (3, 3), data_format=self.IMAGE_ORDERING, padding='same', dilation_rate=1)(deconv3)
         deconv3 = BatchNormalization()(deconv3)
         deconv3 = Activation(tf.nn.leaky_relu)(deconv3)
 
         deconv3 = cbam_block(deconv3)    # Convolutional Block Attention Module(CBAM) block
 
-        output = Conv2D(1, (3, 3), data_format=IMAGE_ORDERING, padding='same')(deconv3)
+        output = Conv2D(1, (3, 3), data_format=self.IMAGE_ORDERING, padding='same')(deconv3)
         # 	output = Activation('sigmoid')(output)
         output = Activation('sigmoid')(output)
         return output
@@ -382,21 +382,21 @@ class stacked_unets():
         img_input_3 = Input(shape=(input_height, input_width, 1))
     # 	kk = 32
         kk = 64
-        conv1 = Conv2D(kk, (3, 3), data_format=IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_1) # dilation_rate=6
+        conv1 = Conv2D(kk, (3, 3), data_format=self.IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_1) # dilation_rate=6
         conv1 = BatchNormalization()(conv1)
         conv1 = Activation('relu')(conv1)
-        conv2 = Conv2D(kk, (3, 3), data_format=IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_2) # dilation_rate=6
+        conv2 = Conv2D(kk, (3, 3), data_format=self.IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_2) # dilation_rate=6
         conv2 = BatchNormalization()(conv2)
         conv2 = Activation('relu')(conv2)
-        conv3 = Conv2D(kk, (3, 3), data_format=IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_3) # dilation_rate=6
+        conv3 = Conv2D(kk, (3, 3), data_format=self.IMAGE_ORDERING,padding='same', dilation_rate=1)(img_input_3) # dilation_rate=6
         conv3 = BatchNormalization()(conv3)
         conv3 = Activation('relu')(conv3)
 
-        input_concat = concatenate([conv1, conv2, conv3], axis=MERGE_AXIS)  #conv4
+        input_concat = concatenate([conv1, conv2, conv3], axis=self.MERGE_AXIS)  #conv4
 
         ## Two Stacked Nets:
         pred_1  = UNet(input_concat)
-        input_2 = concatenate([input_concat, pred_1], axis=MERGE_AXIS)
+        input_2 = concatenate([input_concat, pred_1], axis=self.MERGE_AXIS)
         pred_2  = UNet(input_2) #
 
         model = Model(inputs=[img_input_1,img_input_2,img_input_3], outputs=pred_2)
