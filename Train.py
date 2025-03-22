@@ -79,6 +79,9 @@ def main():
         train_dataset = data_loader_Motion_Simulated.generator('train')
         test_dataset_Motion_Simulated = data_loader_Motion_Simulated.generator('test')
         validation_dataset= data_loader_Motion_Simulated.generator('validation') 
+        for (mb,m,ma),f in train_dataset:
+             print(m.shape)
+             break
         hist = model.fit(train_dataset,
                          epochs=NB_EPOCH,
                          verbose=1,
