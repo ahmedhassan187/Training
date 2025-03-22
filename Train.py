@@ -1,6 +1,8 @@
 import math
 import argparse
 import tensorflow as tf
+import numpy as np
+import tqdm
 from tensorflow.keras.callbacks import CSVLogger, LearningRateScheduler, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model
@@ -9,9 +11,11 @@ from tensorflow.keras.utils import plot_model
 from losses_metrics import losses
 from WAT_stacked_uents import StackedUNets
 from dataloader import DataLoader
+from adapti_multi_loss_normalization import multi_loss
 
 # Initialize loss object
 loss_obj = losses()
+multi = multi_loss()
 
 # Dataset paths and identifiers
 data_ids = {
@@ -19,7 +23,8 @@ data_ids = {
     "/kaggle/input/mmmai-regist-data/MR-ART-Regist": "Motion",
     "/kaggle/input/brats-motion-data/new_Brats_motion_data": "BraTS"
 }
-
+w_comb = 1
+b_comb = 0
 def exponential_lr(epoch, LEARNING_RATE):
     """Learning rate scheduler function."""
     if epoch < 10:
@@ -31,9 +36,11 @@ def total_loss(y_true, y_pred):
     """Custom loss function combining perceptual and SSIM losses."""
     perceptual = loss_obj.perceptual_loss(y_true, y_pred)
     ssim = loss_obj.ssim_loss(y_true, y_pred)
-    
-    scaled_perceptual = perceptual * 0.05807468295097351
-    adjusted_perceptual = scaled_perceptual + 0.009354699403047562
+    print(f"W_comb is {w_comb} and b_comb is {b_comb}")
+    # scaled_perceptual = perceptual * 0.05807468295097351
+    scaled_perceptual = perceptual * w_comb
+
+    adjusted_perceptual = scaled_perceptual + b_comb
     
     total = (ssim + adjusted_perceptual) / 2
     return total
@@ -66,7 +73,7 @@ def wat_unet(dataset_path):
     HEIGHT = 256
     WIDTH = 256
     LEARNING_RATE = 0.001
-    BATCH_SIZE = 5
+    BATCH_SIZE = 10
     NB_EPOCH = 10
 
     try:
@@ -97,8 +104,37 @@ def wat_unet(dataset_path):
         # Load data
         data_loader = load_data_loader(dataset_path, BATCH_SIZE)
         train_dataset = data_loader.generator('train')
+        
         validation_dataset = data_loader.generator('validation')
+        for (motion_before, motion, motion_after), free in tqdm(train_dataset):
+            ssim = loss_obj.ssim_loss(free,motion)# Tensor
+            ssim = tf.math.reduce_mean(ssim)
+            perceptual = loss_obj.perceptual_loss(free,motion)  # Tensor
+            base_losses.append(ssim)
+            comb_losses.append(perceptual)
+    # print(len(base_losses))
+    # Convert all at once — now losses become NumPy arrays
+        base_losses = tf.stack(base_losses).numpy()
+        comb_losses = tf.stack(comb_losses).numpy()
 
+        # print(comb_losses)
+        # ✅ Save arrays to disk
+        np.save("base_losses_.npy", base_losses)
+        np.save("comb_losses_.npy", comb_losses)
+
+        # ✅ Load later like this (if needed):
+        base_losses = np.load("/kaggle/working/Training/base_losses_.npy")
+        comb_losses = np.load("/kaggle/working/Training/comb_losses_.npy")
+
+        # ✅ Adaptive loss normalization
+        try:
+            total_loss, w_comb, b_comb = multi.adaptive_multi_loss_normalization(base_losses, comb_losses)
+            print(f"Total Loss: {total_loss:.4f}")
+            print(f"Weight (w_comb): {w_comb:.4f}")
+            print(f"Bias (b_comb): {b_comb:.4f}")
+        except ValueError as e:
+            print(f"Error: {e}")
+        
         # Train model
         history = model.fit(
             train_dataset,
