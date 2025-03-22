@@ -11,6 +11,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import model_from_json, load_model
 from tensorflow.keras.utils import plot_model
 
+loss_obj = losses()
 def exponential_lr(epoch, LEARNING_RATE):
     if epoch < 10:
         return LEARNING_RATE
@@ -18,8 +19,8 @@ def exponential_lr(epoch, LEARNING_RATE):
         return LEARNING_RATE * math.exp(0.1 * (10 - epoch)) # lr decreases exponentially by a factor of 10
     
 def total_loss(y_true, y_pred):
-    perceptual = losses().perceptual_loss(y_true, y_pred)
-    ssim = losses().ssim_loss(y_true, y_pred)
+    perceptual = loss_obj.perceptual_loss(y_true, y_pred)
+    ssim = loss_obj.ssim_loss(y_true, y_pred)
     
     scaled_perceptual = (perceptual*0.05807468295097351)
     adjusted_perceptual = (scaled_perceptual+0.009354699403047562)
@@ -54,7 +55,7 @@ def main():
         reduce_lr = LearningRateScheduler(exponential_lr)
         
         model.compile(loss=total_loss, optimizer=Adam(learning_rate=LEARNING_RATE),
-                      metrics=[losses().ssim_score, 'mse', losses().psnr])
+                      metrics=[loss_obj.ssim_score, 'mse', loss_obj.psnr])
         
         checkpoint_path = '/kaggle/working/WAT_style_stacked_{epoch:02d}_val_loss_{val_loss:.4f}.h5'
         model_checkpoint = ModelCheckpoint(checkpoint_path,
