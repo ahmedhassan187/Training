@@ -19,7 +19,7 @@ def exponential_lr(epoch, LEARNING_RATE):
     
 def total_loss(y_true, y_pred):
     perceptual = losses().perceptual_loss(y_true, y_pred)
-    ssim = losses.ssim_loss(y_true, y_pred)
+    ssim = losses().ssim_loss(y_true, y_pred)
     
     scaled_perceptual = (perceptual*0.05807468295097351)
     adjusted_perceptual = (scaled_perceptual+0.009354699403047562)
