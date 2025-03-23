@@ -100,7 +100,8 @@ def wat_unet(dataset_path):
                 # continue
             ssim = loss_obj.ssim_loss(free, motion)  # Tensor
             ssim = tf.math.reduce_mean(ssim)
-            perceptual = loss_obj.perceptual_loss(free, motion)  # Tensor
+            perceptual = loss_obj.perceptual_loss(free, motion) 
+            print(f"SSIM = {ssim.shape} Per = {perceptual.shape}") # Tensor
             base_losses.append(ssim)
             comb_losses.append(perceptual)
 
